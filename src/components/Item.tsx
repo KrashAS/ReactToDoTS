@@ -1,6 +1,10 @@
-import React from "react";
+import * as React from "react";
 import { IconButton, Checkbox, ListItem, Typography } from "@mui/material";
-
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
@@ -11,6 +15,20 @@ export const Item: React.FC<{
   completed: boolean;
   onClickRemove: () => void;
 }> = ({ text, completed, onClickRemove }) => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleCloseFalse = () => {
+    setOpen(false);
+  };
+
+  const handleCloseTrue = () => {
+    onClickRemove();
+  };
+
   return (
     <ListItem>
       <div className="d-flex item">
@@ -24,9 +42,27 @@ export const Item: React.FC<{
           <IconButton>
             <EditIcon style={{ fontSize: 20 }} />
           </IconButton>
-          <IconButton onClick={onClickRemove}>
+          <IconButton onClick={handleClickOpen}>
             <DeleteOutlineIcon style={{ fontSize: 20 }} />
           </IconButton>
+          <Dialog
+            open={open}
+            onClose={handleCloseTrue}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Внимание! Вы действительно хотите удалить задачу?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseFalse}>Нет</Button>
+              <Button onClick={handleCloseTrue} autoFocus>
+                Да
+              </Button>
+            </DialogActions>
+          </Dialog>
         </div>
       </div>
     </ListItem>
