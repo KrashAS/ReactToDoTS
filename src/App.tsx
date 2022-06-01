@@ -1,31 +1,25 @@
 import React from "react";
-import { Paper, Divider, Button, List, Tabs, Tab } from "@mui/material";
+import { Paper, Divider, List, Tabs, Tab } from "@mui/material";
 import { AddField } from "./components/AddField";
 import { Item } from "./components/Item";
-
-type Task = {
-  id: number;
-  text: string;
-  completed: boolean;
-};
-
-type InitialState = Task[];
-
-type AddTaskAction = {
-  type: "ADD_TASK";
-  id: number;
-  text: string;
-  completed: boolean;
-};
-
-type RemoveTaskAction = {
-  type: "REMOVE_TASK";
-  id: number;
-};
+import { Footer } from "./components/Footer";
+import type {
+  AddTaskAction,
+  ToggleCheckBox,
+  RemoveTaskAction,
+  CheckAllTasksAction,
+  RemoveAllTasksAction,
+} from "./types/types";
+import { InitialState } from "./types/InitialState";
 
 function reducer(
   state: InitialState,
-  action: AddTaskAction | RemoveTaskAction
+  action:
+    | AddTaskAction
+    | RemoveTaskAction
+    | RemoveAllTasksAction
+    | CheckAllTasksAction
+    | ToggleCheckBox
 ) {
   switch (action.type) {
     case "ADD_TASK":
@@ -38,36 +32,55 @@ function reducer(
         },
       ];
     case "REMOVE_TASK":
-      return state.filter((_, i) => i !== action.id);
+      return state.filter((_, i) => i !== action.payload);
+    case "REMOVE_All_TASKS":
+      return [];
+    case "TOGGLE_CHECKBOX":
+      return state.map((task) =>
+        task.id === action.payload
+          ? { ...task, completed: !task.completed }
+          : task
+      );
+    case "CHECK_ALL_TASKS": {
+      const allCompleted = state.every((tasks) => tasks.completed);
+      return state.map((task) => ({ ...task, completed: !allCompleted }));
+      //return state.map((task) =>
+      //  !task.completed || task.completed
+      //    ? { ...task, completed: !action.payload }
+      //    : { ...task, completed: action.payload }
+      //);
+    }
+
     default:
       return state;
   }
 }
 
-function App() {
-  const [inputValue, setInputValue] = React.useState("");
-  const [checked, setChecked] = React.useState(false);
+function App(): JSX.Element {
+  const [toggleCheck, setToggleCheck] = React.useState(false);
   const [state, dispatch] = React.useReducer(reducer, []);
 
-  const addTask = () => {
-    if (inputValue) {
-      const stateLength = state.length ? state[state.length - 1].id + 1 : 1;
-
-      dispatch({
-        type: "ADD_TASK",
-        id: stateLength,
-        text: inputValue,
-        completed: checked,
-      });
-    }
-    setInputValue("");
-    setChecked(false);
-  };
   const removeTask = (index: number) => {
     dispatch({
       type: "REMOVE_TASK",
-      id: index,
+      payload: index,
     });
+  };
+  const removeAllTasks = () => {
+    dispatch({
+      type: "REMOVE_All_TASKS",
+    });
+  };
+
+  const toggleCheckBox = (id: number) => {
+    dispatch({
+      type: "TOGGLE_CHECKBOX",
+      payload: id,
+    });
+  };
+  const checkAllTasks = () => {
+    setToggleCheck((prev) => !prev);
+    dispatch({ type: "CHECK_ALL_TASKS", payload: toggleCheck });
   };
 
   return (
@@ -76,13 +89,7 @@ function App() {
         <Paper className="header" elevation={0}>
           <h4>Список задач</h4>
         </Paper>
-        <AddField
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onClickAdd={addTask}
-          checked={checked}
-          onChangeCheckbox={() => setChecked(!checked)}
-        />
+        <AddField dispatch={dispatch} state={state} />
         <Divider />
         <Tabs value={0}>
           <Tab label="Все" />
@@ -91,20 +98,22 @@ function App() {
         </Tabs>
         <Divider />
         <List>
-          {state.map((obj, i) => (
+          {state.map((task, i) => (
             <Item
-              key={obj.id}
-              text={obj.text}
-              completed={obj.completed}
+              key={task.id}
+              text={task.text}
+              completed={task.completed}
               onClickRemove={() => removeTask(i)}
+              toggleCheckBox={() => toggleCheckBox(task.id)}
             />
           ))}
         </List>
         <Divider />
-        <div className="check-buttons">
-          <Button>Отметить всё</Button>
-          <Button>Очистить</Button>
-        </div>
+        <Footer
+          onClickRemoveAllTasks={removeAllTasks}
+          onClickAllTasks={checkAllTasks}
+          state={state}
+        />
       </Paper>
     </div>
   );

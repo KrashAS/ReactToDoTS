@@ -1,7 +1,7 @@
 body {
   margin: 0 !important;
   padding: 0 !important;
-  font-family: 'Roboto';
+  font-family: "Roboto";
 }
 
 h4 {
@@ -70,4 +70,9 @@ h4 {
 
 .check-buttons {
   padding: 15px;
+
+  button {
+    width: 140px;
+    margin-right: 30px;
+  }
 }
