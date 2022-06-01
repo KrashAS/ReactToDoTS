@@ -41,12 +41,16 @@ function reducer(
           ? { ...task, completed: !task.completed }
           : task
       );
-    case "CHECK_ALL_TASKS":
-      return state.map((task) =>
-        !task.completed || task.completed
-          ? { ...task, completed: !action.payload }
-          : { ...task, completed: action.payload }
-      );
+    case "CHECK_ALL_TASKS": {
+      const allCompleted = state.every((tasks) => tasks.completed);
+      return state.map((task) => ({ ...task, completed: !allCompleted }));
+      //return state.map((task) =>
+      //  !task.completed || task.completed
+      //    ? { ...task, completed: !action.payload }
+      //    : { ...task, completed: action.payload }
+      //);
+    }
+
     default:
       return state;
   }
@@ -108,7 +112,6 @@ function App(): JSX.Element {
         <Footer
           onClickRemoveAllTasks={removeAllTasks}
           onClickAllTasks={checkAllTasks}
-          textBottonToggle={toggleCheck}
           state={state}
         />
       </Paper>

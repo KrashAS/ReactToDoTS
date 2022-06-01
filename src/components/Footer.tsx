@@ -5,18 +5,11 @@ import { Task } from "../types/types";
 export const Footer: React.FC<{
   onClickRemoveAllTasks: () => void;
   onClickAllTasks: () => void;
-  textBottonToggle: boolean;
   state: Task[];
-}> = ({
-  onClickRemoveAllTasks,
-  onClickAllTasks,
-  textBottonToggle,
-  state,
-}): JSX.Element => {
-  let textButton = "Отметить всё";
-  if (textBottonToggle && state.length) {
-    textButton = "Снять отметки";
-  }
+}> = ({ onClickRemoveAllTasks, onClickAllTasks, state }): JSX.Element => {
+  const allCompleted = state.every((tasks) => tasks.completed);
+  let textButton = allCompleted ? "Снять отметки" : "Отметить всё";
+
   return (
     <div className="check-buttons">
       <Button onClick={onClickAllTasks}>{textButton}</Button>
